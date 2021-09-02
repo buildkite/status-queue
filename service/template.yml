@@ -63,6 +63,33 @@ Resources:
       PathPart: "message"
       RestApiId: !Ref ApiGateway
 
+  MessageResourceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: apigateway.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: ReceiveDeleteMessagePolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sqs:ReceiveMessage
+                  - sqs:DeleteMessage
+                Resource: !GetAtt Queue.Arn
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: '*'
+
   ReceiveMessage:
     Type: AWS::ApiGateway::Method
     Properties:
@@ -81,6 +108,7 @@ Resources:
           !Sub
             - "arn:aws:apigateway:${AWS::Region}:sqs:path/${AWS::AccountId}/${QueueName}"
             - QueueName: !GetAtt Queue.QueueName
+        Credentials: !GetAtt MessageResourceRole.Arn
         IntegrationHttpMethod: POST
         IntegrationResponses:
           - StatusCode: '200'
@@ -107,6 +135,7 @@ Resources:
           !Sub
             - "arn:aws:apigateway:${AWS::Region}:sqs:path/${AWS::AccountId}/${QueueName}"
             - QueueName: !GetAtt Queue.QueueName
+        Credentials: !GetAtt MessageResourceRole.Arn
         IntegrationHttpMethod: POST
         IntegrationResponses:
           - StatusCode: '200'
