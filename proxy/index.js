@@ -70,7 +70,7 @@ async function retrieveMessage() {
 
 	// TODO error checking the body
 	const messages = body['ReceiveMessageResponse']['ReceiveMessageResult']['messages']
-	if (messages.length == 0) {
+	if (messages == null || messages.length == 0) {
 		return undefined
 	}
 
@@ -185,7 +185,7 @@ async function handleMessage() {
 		console.log(`fn=handleMessage at=no-message`)
 		return
 	}
-	
+
 	console.log(`fn=handleMessage at=message`)
 
 	let result = await createStatus(message)
