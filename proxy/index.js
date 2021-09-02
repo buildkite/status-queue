@@ -66,11 +66,15 @@ async function retrieveMessage() {
 		throw `Could not retrieve message from API Gateway: ${body}`;
 	}
 
-	// TODO error checking the body
-	const message = body['ReceiveMessageResponse']['ReceiveMessageResult']['messages'][0];
-	console.log(`fn=retrieveMessage at=response messageId=${message['MessageId']}`)
+	console.log(`fn=retrieveMessage at=response`)
 
-	return message
+	// TODO error checking the body
+	const messages = body['ReceiveMessageResponse']['ReceiveMessageResult']['messages']
+	if (messages.length == 0) {
+		return undefined
+	}
+
+	return messages[0];
 }
 
 async function createStatus(message) {
@@ -96,6 +100,13 @@ async function createStatus(message) {
 
 	console.log(`fn=createStatus messageId=${message['MessageId']} at=request owner=${owner} repo=${repo} sha=${commit} context=${context}`)
 
+	if (commit == "HEAD") {
+		console.log(`fn=createStatus messageId=${message['MessageId']} at=error error='cannot use HEAD as a commit'`)
+		// Say we did it otherwise we'll stall processing more, this message
+		// will never be process-able
+		return true
+	}
+
 	// TODO if this fails, we could quickly end up head of line blocking the
 	// whole queue
 	let response = await github.request("POST /repos/{owner}/{repo}/statuses/{sha}", {
@@ -109,7 +120,6 @@ async function createStatus(message) {
 	});
 
 	console.log(`fn=createStatus messageId=${message['MessageId']} at=response`)
-
 	return true
 }
 
@@ -171,6 +181,11 @@ async function deleteMessage(message) {
 
 async function handleMessage() {
 	let message = await retrieveMessage();
+	if (message === undefined) {
+		console.log(`fn=handleMessage at=no-message`)
+		return
+	}
+	
 	console.log(`fn=handleMessage at=message`)
 
 	let result = await createStatus(message)
