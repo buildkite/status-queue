@@ -1,7 +1,6 @@
 ---
 AWSTemplateFormatVersion: 2010-09-09
 Description: Buildkite EventBridge SQS
-Transform: AWS::Serverless-2016-10-31
 
 Parameters:
   EventBridgeBusName:
@@ -52,11 +51,9 @@ Resources:
             MessageGroupId: BuildFinished
 
   ApiGateway:
-    Type: AWS::Serverless::Api
+    Type: AWS::ApiGateway::RestApi
     Properties:
-      Auth:
-        ApiKeyRequired: true
-      StageName: Prod
+      ApiKeySourceType: HEADER
 
   MessageResource:
     Type: AWS::ApiGateway::Resource
@@ -65,9 +62,10 @@ Resources:
       PathPart: "message"
       RestApiId: !Ref ApiGateway
 
-  GetMessage:
+  ReceiveMessage:
     Type: AWS::ApiGateway::Method
     Properties:
+      ApiKeyRequired: true
       RestApiId: !Ref ApiGateway
       ResourceId: !Ref MessageResource
       HttpMethod: GET
@@ -92,6 +90,7 @@ Resources:
   DeleteMessage:
     Type: AWS::ApiGateway::Method
     Properties:
+      ApiKeyRequired: true
       RestApiId: !Ref ApiGateway
       ResourceId: !Ref MessageResource
       HttpMethod: DELETE
@@ -112,6 +111,15 @@ Resources:
           integration.request.header.Content-Type: '''application/x-www-form-urlencoded'''
         RequestTemplates:
           application/json: 'Action=DeleteMessage&ReceiptHandle=$util.urlEncode($input.params(''receiptHandle''))'
+
+  ApiGatewayDeployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn:
+      - ReceiveMessage
+      - DeleteMessage
+    Properties:
+      RestApiId: !Ref ApiGateway
+      StageName: Prod
 
 Outputs:
   Queue:
