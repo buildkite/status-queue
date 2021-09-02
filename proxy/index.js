@@ -1,5 +1,6 @@
 const octokit = require('octokit')
 const axios = require('axios')
+const https = require('https')
 
 /*
 	1. Grab GitHub Enterprise Access Token from environment
@@ -42,9 +43,15 @@ console.log(`fn=index.js at=apiGateway key=${apiGatewayKey.replace(/./g, '*')} u
 githubAccessToken = requireEnv('GITHUB_ACCESS_TOKEN');
 githubUrl = requireEnv('GITHUB_URL');
 
+// DANGERZONE, our GHE instance has a self signed certificate
+const httpsAgent = new https.Agent({ rejectUnauthorized: false });
+
 const github = new octokit.Octokit({
 	auth: githubAccessToken,
 	baseUrl: githubUrl,
+	request: {
+		agent: httpsAgent,
+	}
 });
 
 console.log(`fn=index.js at=github token=${githubAccessToken.replace(/./g, '*')} url=${githubUrl}`)
