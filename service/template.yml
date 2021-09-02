@@ -55,6 +55,9 @@ Resources:
     Properties:
       ApiKeySourceType: HEADER
       Name: !Ref AWS::StackName
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
 
   MessageResource:
     Type: AWS::ApiGateway::Resource
