@@ -1,0 +1,11 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "buildkite-status-queue"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-14g8v5fxlj5fs"
+s3_prefix = "buildkite-status-queue"
+region = "us-east-1"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "EventBridgeBusName=\"aws.partner/buildkite.com/keith-inc/eb344b97-0326-4478-ac1e-b58d9f367465\""
