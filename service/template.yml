@@ -67,6 +67,7 @@ Resources:
     Type: AWS::ApiGateway::Method
     Properties:
       ApiKeyRequired: true
+      AuthorizationType: NONE
       RestApiId: !Ref ApiGateway
       ResourceId: !Ref MessageResource
       HttpMethod: GET
@@ -92,6 +93,7 @@ Resources:
     Type: AWS::ApiGateway::Method
     Properties:
       ApiKeyRequired: true
+      AuthorizationType: NONE
       RestApiId: !Ref ApiGateway
       ResourceId: !Ref MessageResource
       HttpMethod: DELETE
