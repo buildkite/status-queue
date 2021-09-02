@@ -51,8 +51,72 @@ Resources:
           SqsParameters:
             MessageGroupId: BuildFinished
 
+  ApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      Auth:
+        ApiKeyRequired: true
+      StageName: Prod
+
+  MessageResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !GetAtt ApiGateway.RootResourceId
+      PathPart: "message"
+      RestApiId: !Ref ApiGateway
+
+  GetMessage:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref ApiGateway
+      ResourceId: !Ref MessageResource
+      HttpMethod: GET
+      MethodResponses:
+        - ResponseModels:
+            application/json: Empty
+          StatusCode: '200'
+      Integration:
+        Type: AWS
+        Uri:
+          !Sub
+            - "arn:aws:apigateway:${AWS::Region}:sqs:path/${AWS::AccountId}/${QueueName}"
+            - QueueName: !GetAtt Queue.QueueName
+        IntegrationHttpMethod: POST
+        IntegrationResponses:
+          - StatusCode: '200'
+        RequestParameters:
+          integration.request.header.Content-Type: '''application/x-www-form-urlencoded'''
+        RequestTemplates:
+          application/json: 'Action=ReceiveMessage'
+
+  DeleteMessage:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref ApiGateway
+      ResourceId: !Ref MessageResource
+      HttpMethod: DELETE
+      MethodResponses:
+        - ResponseModels:
+            application/json: Empty
+          StatusCode: '200'
+      Integration:
+        Type: AWS
+        Uri:
+          !Sub
+            - "arn:aws:apigateway:${AWS::Region}:sqs:path/${AWS::AccountId}/${QueueName}"
+            - QueueName: !GetAtt Queue.QueueName
+        IntegrationHttpMethod: POST
+        IntegrationResponses:
+          - StatusCode: '200'
+        RequestParameters:
+          integration.request.header.Content-Type: '''application/x-www-form-urlencoded'''
+        RequestTemplates:
+          application/json: 'Action=DeleteMessage&ReceiptHandle=$util.urlEncode($input.params(''receiptHandle''))'
+
 Outputs:
   Queue:
     Value: !GetAtt Queue.Arn
   QueueUrl:
     Value: !Ref Queue
+  ApiUrl:
+    Value: !Sub "https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
