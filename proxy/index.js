@@ -28,7 +28,7 @@ function requireEnv(key) {
 apiGatewayKey = requireEnv('API_KEY');
 apiGatewayUrl = requireEnv('API_URL');
 
-const instance = axios.create({
+const apiGateway = axios.create({
 	baseURL: apiGatewayUrl,
 	timeout: 5000,
 	headers: {
@@ -41,7 +41,7 @@ githubAccessToken = requireEnv('GITHUB_ACCESS_TOKEN');
 githubUrl = requireEnv('GITHUB_URL');
 
 async function retrieveMessage() {
-	const response = await instance.get(`/message`);
+	const response = await apiGateway.get(`/message`);
 
 	const body = response.data;
 
@@ -99,7 +99,20 @@ function githubStatusForBuildkiteState(state) {
 }
 
 async function deleteMessage(message) {
-	return {}
+	let receiptHandle = message['ReceiptHandle'];
+
+	const response = await apiGateway.delete(`/message`, {
+		params: {
+			receiptHandle: receiptHandle,
+		}
+	});
+
+	const body = response.data;
+
+	const status = response.status;
+	if (status != 200) {
+		throw `Could not delete message on API Gateway: ${body}`;
+	}
 }
 
 async function handleMessage() {
