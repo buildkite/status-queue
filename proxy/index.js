@@ -40,7 +40,7 @@ const apiGateway = axios.create({
 githubAccessToken = requireEnv('GITHUB_ACCESS_TOKEN');
 githubUrl = requireEnv('GITHUB_URL');
 
-const github = new Octokit({
+const github = new octokit.Octokit({
 	auth: githubAccessToken,
 	baseUrl: githubUrl,
 });
@@ -57,7 +57,7 @@ async function retrieveMessage() {
 
 	// TODO error checking the body
 	const message = body['ReceiveMessageResponse']['ReceiveMessageResult']['messages'][0];
-	console.log(`fn=retrieveMessage at=retreived messageId=${message['MessageId']} receiptHandle=${message['ReceiptHandle']}`)
+	console.log(`fn=retrieveMessage at=retreived messageId=${message['MessageId']}`)
 
 	return message
 }
@@ -74,15 +74,25 @@ async function createStatus(message) {
 	const commit = buildkiteEvent['build']['commit']
 	const orgSlug = buildkiteEvent['organization']['slug']
 	const pipelineSlug = buildkiteEvent['pipeline']['slug']
-	const state = buildkiteEvent['build']['state']
+	const buildkiteState = buildkiteEvent['build']['state']
 
 	let [owner, repo] = parseNwo(repository)
-	let state = githubStatusForBuildkiteState(state)
+	let state = githubStatusForBuildkiteState(buildkiteState)
 	let targetUrl = `https://buildkite.com/${orgSlug}/${pipelineSlug}/build/${buildNumber}`
 	let description = ""
 	let context = pipelineSlug
 
-	return false
+	let response = await github.request("POST /repos/{owner}/{repo}/statuses/{sha}", {
+		owner: owner,
+		repo: repo,
+		sha: commit,
+		state: state,
+		target_url: targetUrl,
+		description: description,
+		context: context,
+	});
+
+	return true
 }
 
 function parseNwo(repository) {
