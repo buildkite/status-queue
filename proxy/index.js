@@ -35,14 +35,36 @@ async function retrieveMessage() {
 	return {}
 }
 
-async function processMessage(message) {
+async function createStatus(message) {
 	/*
 		Turn the message into a GitHub status
 	*/
+	return true
 }
 
 async function deleteMessage(message) {
+	return {}
+}
 
+async function handleMessage() {
+	let message = await retrieveMessage();
+	console.log(`fn=handleMessage at=message`)
+
+	let result = await createStatus(message)
+	console.log(`fn=handleMessage at=process`)
+	if (!result) {
+		console.log(`fn=handleMessage at=process result=${result}`)
+		return;
+	}
+
+	await deleteMessage(message)
+	console.log(`fn=handleMessage at=deleted`)
+}
+
+async function sleep(ms) {
+    return new Promise(resolve => {
+        setTimeout(resolve, ms)
+    });
 }
 
 async function main() {
@@ -50,14 +72,8 @@ async function main() {
 		console.log(`fn=main at=start`)
 
 		try {
-			let message = await retrieveMessage();
-			console.log(`fn=main at=message`)
-
-			await processMessage(message)
-			console.log(`fn=main at=process`)
-
-			await deleteMessage(message)
-			console.log(`fn=main at=deleted`)
+			await handleMessage()
+			await sleep(5000);
 		}
 		catch (err) {
 			console.log(`fn=main at=error message=${err}`)
