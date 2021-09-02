@@ -96,6 +96,8 @@ async function createStatus(message) {
 
 	console.log(`fn=createStatus messageId=${message['MessageId']} at=request owner=${owner} repo=${repo} sha=${commit} context=${context}`)
 
+	// TODO if this fails, we could quickly end up head of line blocking the
+	// whole queue
 	let response = await github.request("POST /repos/{owner}/{repo}/statuses/{sha}", {
 		owner: owner,
 		repo: repo,

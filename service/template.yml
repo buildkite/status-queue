@@ -14,7 +14,7 @@ Resources:
     Properties:
       FifoQueue: true
       ContentBasedDeduplication: true
-      MessageRetentionPeriod: 86400
+      MessageRetentionPeriod: 3600
   QueuePolicy:
     Type: AWS::SQS::QueuePolicy
     Properties:
