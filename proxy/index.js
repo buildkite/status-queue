@@ -25,14 +25,36 @@ function requireEnv(key) {
 	return value;
 }
 
-api_gateway_key = requireEnv('API_KEY');
-api_gateway_url = requireEnv('API_URL');
+apiGatewayKey = requireEnv('API_KEY');
+apiGatewayUrl = requireEnv('API_URL');
 
-github_access_token = requireEnv('GITHUB_ACCESS_TOKEN');
-github_url = requireEnv('GITHUB_URL');
+const instance = axios.create({
+	baseURL: apiGatewayUrl,
+	timeout: 5000,
+	headers: {
+		'X-Api-Key': apiGatewayKey,
+		'Accept': 'application/json'
+	}
+});
+
+githubAccessToken = requireEnv('GITHUB_ACCESS_TOKEN');
+githubUrl = requireEnv('GITHUB_URL');
 
 async function retrieveMessage() {
-	return {}
+	const response = await instance.get(`/message`);
+
+	const body = response.data;
+
+	const status = response.status;
+	if (status != 200) {
+		throw `Could not retrieve message from API Gateway: ${body}`;
+	}
+
+	// TODO error checking the body
+	const message = body['ReceiveMessageResponse']['ReceiveMessageResult']['messages'][0];
+	console.log(`fn=retrieveMessage at=retreived messageId=${message['MessageId']} receiptHandle=${message['ReceiptHandle']}`)
+
+	return message
 }
 
 async function createStatus(message) {
