@@ -1,0 +1,37 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: Buildkite EventBridge SQS
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  EventBridgeBusName:
+    Type: String
+    Description: Name of an EventBridge Bus in this region that receives Buildkite Partner Events, see https://buildkite.com/docs/integrations/amazon-eventbridge.
+    AllowedPattern: ^[a-zA-Z0-9\-\._/]+
+
+Resources:
+  Queue:
+    Type: AWS::SQS::Queue
+    Properties:
+      FifoQueue: true
+
+  QueueRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: Store Build Finished events on the SQS queue for creating GitHub Status events.
+      EventBusName: !Ref EventBridgeBusName
+      EventPattern:
+        account:
+          - !Ref AWS::AccountId
+        detail-type:
+          - "Build Finished"
+      Targets:
+        - Id: Queue
+          Arn: !GetAtt Queue.Arn
+          InputPath: $.detail
+
+Outputs:
+  Queue:
+    Value: !GetAtt Queue.Arn
+  QueueUrl:
+    Value: !Ref Queue
