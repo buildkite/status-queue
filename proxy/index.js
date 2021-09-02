@@ -61,7 +61,41 @@ async function createStatus(message) {
 	/*
 		Turn the message into a GitHub status
 	*/
-	return true
+
+	const buildkiteEvent = JSON.parse(message.Body)
+
+	const buildNumber = buildkiteEvent['build']['number']
+	const repository = buildkiteEvent['pipeline']['repo']
+	const commit = buildkiteEvent['build']['commit']
+	const orgSlug = buildkiteEvent['organization']['slug']
+	const pipelineSlug = buildkiteEvent['pipeline']['slug']
+	const state = buildkiteEvent['build']['state']
+
+	let [owner, repo] = parseNwo(repository)
+	let state = githubStatusForBuildkiteState(state)
+	let targetUrl = `https://buildkite.com/${orgSlug}/${pipelineSlug}/build/${buildNumber}`
+	let description = ""
+	let context = pipelineSlug
+
+	return false
+}
+
+function parseNwo(repository) {
+	return ["foo", "bar"]
+}
+
+/*
+	Can return one of "error", "failure", "pending", or "success"
+*/
+function githubStatusForBuildkiteState(state) {
+	switch (state) {
+		case "passed":
+			return "success";
+		case "failed":
+			return "failure";
+		default:
+			return "pending";
+	}
 }
 
 async function deleteMessage(message) {
