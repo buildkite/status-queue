@@ -111,8 +111,21 @@ async function createStatus(message) {
 	return true
 }
 
+// Can be given an https://github.com/owner/name or git@github.com:owner/name url
+// Returns tuple of [owner, name]
 function parseNwo(repository) {
-	return ["foo", "bar"]
+	if (repository.startsWith("git@github.com")) {
+		var [_, nwo] = repository.split(":")
+		var [owner, name_with_git] = nwo.split("/")
+		var [_, name] = name_with_git.split(".")
+		return [owner, name]
+	}
+
+	if (repository.startsWith("https")) {
+		return repository.split("/").slice(3)
+	}
+
+	throw `Unknown repository format to parse name with owner: ${repository}`
 }
 
 /*
