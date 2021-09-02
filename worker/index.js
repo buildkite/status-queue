@@ -43,16 +43,20 @@ console.log(`fn=index.js at=apiGateway key=${apiGatewayKey.replace(/./g, '*')} u
 githubAccessToken = requireEnv('GITHUB_ACCESS_TOKEN');
 githubUrl = requireEnv('GITHUB_URL');
 
-// DANGERZONE, our GHE instance has a self signed certificate
-const httpsAgent = new https.Agent({ rejectUnauthorized: false });
-
-const github = new octokit.Octokit({
+let octokitParameters = {
 	auth: githubAccessToken,
 	baseUrl: githubUrl,
-	request: {
+};
+
+if (process.env['GITHUB_I_DONT_NEED_HOST_VERIFICATION']) {
+	// DANGERZONE, our GHE instance has a self signed certificate
+	const httpsAgent = new https.Agent({ rejectUnauthorized: false });
+	octokitParameters['request'] = {
 		agent: httpsAgent,
-	}
-});
+	};
+}
+
+const github = new octokit.Octokit(octokitParameters);
 
 console.log(`fn=index.js at=github token=${githubAccessToken.replace(/./g, '*')} url=${githubUrl}`)
 
