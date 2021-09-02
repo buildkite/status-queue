@@ -14,7 +14,7 @@ const axios = require('axios')
 
 	GitHub
 	GITHUB_ACCESS_TOKEN
-	GITHUB_URL, e.g. https://api.ghe.io/
+	GITHUB_URL, e.g. https://github.acme-inc.com/api/v3
 */
 
 function requireEnv(key) {
@@ -39,6 +39,11 @@ const apiGateway = axios.create({
 
 githubAccessToken = requireEnv('GITHUB_ACCESS_TOKEN');
 githubUrl = requireEnv('GITHUB_URL');
+
+const github = new Octokit({
+	auth: githubAccessToken,
+	baseUrl: githubUrl,
+});
 
 async function retrieveMessage() {
 	const response = await apiGateway.get(`/message`);
