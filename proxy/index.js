@@ -118,10 +118,12 @@ async function createStatus(message) {
 // TODO confirm that the host of the repo matches the GHE host configured by env
 // var?
 function parseNwo(repository) {
+	console.log(`fn=parseNwo repository=${repository}`)
+
 	if (repository.startsWith("git@")) {
 		var [_, nwo] = repository.split(":")
 		var [owner, name_with_git] = nwo.split("/")
-		var [_, name] = name_with_git.split(".")
+		var [name, _] = name_with_git.split(".")
 		return [owner, name]
 	}
 
