@@ -37,6 +37,8 @@ const apiGateway = axios.create({
 	}
 });
 
+console.log(`fn=index.js at=apiGateway key=${apiGatewayKey.replace(/./g, '*')} url=${apiGatewayUrl}`)
+
 githubAccessToken = requireEnv('GITHUB_ACCESS_TOKEN');
 githubUrl = requireEnv('GITHUB_URL');
 
@@ -44,6 +46,8 @@ const github = new octokit.Octokit({
 	auth: githubAccessToken,
 	baseUrl: githubUrl,
 });
+
+console.log(`fn=index.js at=github token=${githubAccessToken.replace(/./g, '*')} url=${githubUrl}`)
 
 async function retrieveMessage() {
 	const response = await apiGateway.get(`/message`);
@@ -57,12 +61,13 @@ async function retrieveMessage() {
 
 	// TODO error checking the body
 	const message = body['ReceiveMessageResponse']['ReceiveMessageResult']['messages'][0];
-	console.log(`fn=retrieveMessage at=retreived messageId=${message['MessageId']}`)
+	console.log(`fn=retrieveMessage at=response messageId=${message['MessageId']}`)
 
 	return message
 }
 
 async function createStatus(message) {
+	console.log(`fn=createStatus messageId=${message['MessageId']}`)
 	/*
 		Turn the message into a GitHub status
 	*/
@@ -82,6 +87,8 @@ async function createStatus(message) {
 	let description = ""
 	let context = pipelineSlug
 
+	console.log(`fn=createStatus messageId=${message['MessageId']} at=request owner=${owner} repo=${repo} sha=${commit} context=${context}`)
+
 	let response = await github.request("POST /repos/{owner}/{repo}/statuses/{sha}", {
 		owner: owner,
 		repo: repo,
@@ -91,6 +98,8 @@ async function createStatus(message) {
 		description: description,
 		context: context,
 	});
+
+	console.log(`fn=createStatus messageId=${message['MessageId']} at=response`)
 
 	return true
 }
@@ -114,6 +123,8 @@ function githubStatusForBuildkiteState(state) {
 }
 
 async function deleteMessage(message) {
+	console.log(`fn=deleteMessage messageId=${message['MessageId']}`)
+
 	let receiptHandle = message['ReceiptHandle'];
 
 	const response = await apiGateway.delete(`/message`, {
@@ -121,6 +132,8 @@ async function deleteMessage(message) {
 			receiptHandle: receiptHandle,
 		}
 	});
+
+	console.log(`fn=deleteMessage messageId=${message['MessageId']} at=response`)
 
 	const body = response.data;
 
@@ -153,15 +166,14 @@ async function sleep(ms) {
 
 async function main() {
 	while (true) {
-		console.log(`fn=main at=start`)
-
 		try {
 			await handleMessage()
-			await sleep(5000);
 		}
 		catch (err) {
 			console.log(`fn=main at=error message=${err}`)
 		}
+
+		await sleep(5000);
 	}
 }
 
