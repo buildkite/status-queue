@@ -54,6 +54,7 @@ Resources:
     Type: AWS::ApiGateway::RestApi
     Properties:
       ApiKeySourceType: HEADER
+      Name: !Ref AWS::StackName
 
   MessageResource:
     Type: AWS::ApiGateway::Resource
