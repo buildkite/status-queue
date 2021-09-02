@@ -115,6 +115,8 @@ async function createStatus(message) {
 
 // Can be given an https://github.com/owner/name or git@github.com:owner/name url
 // Returns tuple of [owner, name]
+// TODO confirm that the host of the repo matches the GHE host configured by env
+// var?
 function parseNwo(repository) {
 	if (repository.startsWith("git@")) {
 		var [_, nwo] = repository.split(":")
