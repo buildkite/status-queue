@@ -14,6 +14,25 @@ Resources:
     Type: AWS::SQS::Queue
     Properties:
       FifoQueue: true
+      ContentBasedDeduplication: true
+      MessageRetentionPeriod: 86400
+  QueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
+            Action: "SQS:*"
+            Resource: !GetAtt Queue.Arn
+          - Effect: Allow
+            Principal:
+              Service: "events.amazonaws.com"
+            Action: "sqs:SendMessage"
+            Resource: !GetAtt Queue.Arn
+      Queues:
+        - !Ref Queue
 
   QueueRule:
     Type: AWS::Events::Rule
@@ -29,6 +48,8 @@ Resources:
         - Id: Queue
           Arn: !GetAtt Queue.Arn
           InputPath: $.detail
+          SqsParameters:
+            MessageGroupId: BuildFinished
 
 Outputs:
   Queue:
