@@ -161,6 +161,7 @@ Resources:
     DependsOn:
       - ApiGatewayDeployment
     Properties:
+      Enabled: true
       StageKeys:
         - RestApiId: !Ref ApiGateway
           StageName: Prod
