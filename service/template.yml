@@ -147,8 +147,19 @@ Resources:
         RequestTemplates:
           application/json: 'Action=DeleteMessage&ReceiptHandle=$util.urlEncode($input.params(''receiptHandle''))'
 
+  ApiGatewayDeployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn:
+      - ReceiveMessage
+      - DeleteMessage
+    Properties:
+      RestApiId: !Ref ApiGateway
+      StageName: Prod
+
   ApiKey:
     Type: AWS::ApiGateway::ApiKey
+    DependsOn:
+      - ApiGatewayDeployment
     Properties:
       StageKeys:
         - RestApiId: !Ref ApiGateway
@@ -156,6 +167,8 @@ Resources:
 
   UsagePlan:
     Type: AWS::ApiGateway::UsagePlan
+    DependsOn:
+      - ApiGatewayDeployment
     Properties:
       ApiStages:
         - ApiId: !Ref ApiGateway
@@ -167,16 +180,6 @@ Resources:
       KeyId: !Ref ApiKey
       KeyType: API_KEY
       UsagePlanId: !Ref UsagePlan
-
-  ApiGatewayDeployment:
-    Type: AWS::ApiGateway::Deployment
-    DependsOn:
-      - ReceiveMessage
-      - DeleteMessage
-      - UsagePlanKey
-    Properties:
-      RestApiId: !Ref ApiGateway
-      StageName: Prod
 
 Outputs:
   Queue:
