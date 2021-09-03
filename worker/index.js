@@ -215,7 +215,7 @@ async function main() {
 			await handleMessage()
 		}
 		catch (err) {
-			console.log(`fn=main at=error message=${err}`)
+			console.log(`fn=main at=error message="${err}"`)
 		}
 
 		await sleep(5000);
@@ -229,5 +229,5 @@ process.on('SIGINT', function () {
 (async () => {
 	await main();
 })().catch(err => {
-	console.log(`fn=index.js at=error message=${err}`)
+	console.log(`fn=index.js at=error message="${err}"`)
 });
