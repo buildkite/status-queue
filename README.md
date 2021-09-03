@@ -48,7 +48,7 @@ from the [service](#service) and applies GitHub Commit Statuses in a loop.
 
 The worker requires the following configuration as environment variables:
 
-* `API_KEY`, an API Key associated with the API Gateway.
+* `API_KEY`, an API Key associated with the API Gateway, this value can be retrieved from the AWS Console for your deployed service stack
 * `API_URL`, the value of the `ApiUrl` from the service outputs.
 * `GITHUB_URL`, the URL of your GitHub Enterprise instance’s API e.g. https://buildkite-ghe.com/api/v3
 * `GITHUB_ACCESS_TOKEN`, a personal access token with `repo` scope and access to the repositories you want to post commit statuses to on the GitHub Enterprise instance in `GITHUB_URL`
