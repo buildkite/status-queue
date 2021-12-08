@@ -9,17 +9,6 @@ your GitHub Enterprise instance through an HTTP Proxy, status-queue implements a
 potential solution for transforming Build Finished events into GitHub Commit
 Statuses.
 
-## status-queue is an experimental project 🧑‍🔬🧪⚗️
-
-As an experimental project, the project may be archived in the future. Long term
-support is not guaranteed. There is no roadmap or scheduled work for this
-project.
-
-## status-queue is an unsupported project 📅
-
-This is a proof of concept. The code is not robust against failure, the error
-handling is incomplete. We do not expect it to be operable in production as-is.
-
 # Project
 
 ## service
