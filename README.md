@@ -1,5 +1,7 @@
 # status-queue
 
+*Note: This tool is not actively supported, though we will consider contributions via Pull Requests.*
+
 status-queue is a combination web service and worker tool for store-and-forward
 of Buildkite Build Finished events, and later transformation of them into a
 GitHub Commit Status on a GitHub Enterprise instance.
